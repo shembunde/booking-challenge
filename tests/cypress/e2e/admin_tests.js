@@ -11,9 +11,8 @@ describe('Admin and Guest Actions', () => {
 
   it('Creates a new tour as admin', () => {
   
-    cy.loginAdmin();
-    
-    cy.visit('/admin/tours/create');
+    beforeEach(() => {
+    cy.visit("https://solutechtours.com/admin");
     
     cy.get('#tour-name').type('Savannah Safari');
     cy.get('#tour-slots').type('15');
@@ -28,6 +27,7 @@ describe('Admin and Guest Actions', () => {
       .should('contain', 'Savannah Safari')
       .and('contain', '15 slots available');
   });
+});
 
 
   // admin views all tours bookings
@@ -35,7 +35,7 @@ describe('Admin and Guest Actions', () => {
   it('Views all bookings as admin', () => {
     cy.loginAdmin();
     
-    cy.visit('/admin/bookings');
+    cy.visit("https://solutechtours.com/admin/bookings");
     
     // Verify bookings table
     cy.get('.bookings-table')
@@ -50,9 +50,8 @@ describe('Admin and Guest Actions', () => {
   it('Views all tickets as admin', () => {
     cy.loginAdmin();
     
-    cy.visit('/admin/tickets');
+    cy.visit("https://solutechtours.com/admin/bookings");
     
-    // Verify tickets list
     cy.get('.tickets-list')
       .should('be.visible')
       .find('.ticket-card')

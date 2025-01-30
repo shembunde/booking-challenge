@@ -7,7 +7,9 @@ describe('A client books a tour test', () => {
     it('Books a tour as a client', () => {
       cy.visit('/');
       cy.get('.tour-card:first').click();
+      cy.get("#guestName").type("Shem Obura");
+      cy.get("#guestEmail").type("shemobura@gmail.com");
       cy.get('#book-as-guest').click();
-      cy.get('.confirmation').should('be.visible');
+      cy.get('.confirmation').should("contain", "Booking successful");
     });
 });
