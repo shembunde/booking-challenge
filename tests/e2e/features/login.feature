@@ -1,8 +1,7 @@
-# e2e/features/login.feature
-Feature: Invalid Login
+Feature: User Authentication
 
-  Scenario: Error message on invalid credentials
+  Scenario: Invalid login attempt
     Given I navigate to the login page
-    When I enter "invalid_user" as username and "wrong_password" as password
+    When I enter "wrong@email.com" as email and "wrong_password" as password
     And I click the login button
-    Then I see an error message "Invalid credentials"
+    Then I should see an error message "These credentials do not match our records"

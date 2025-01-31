@@ -1,0 +1,10 @@
+{
+    "scripts": {
+      "test": "cucumber-js --require-module @babel/register --require e2e/step-definitions/*.js"
+    },
+    "devDependencies": {
+      "@cucumber/cucumber": "^8.11.0",
+      "@playwright/test": "^1.35.1",
+      "playwright": "^1.35.1"
+    }
+  }

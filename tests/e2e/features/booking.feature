@@ -1,19 +1,32 @@
-# e2e/features/admin_guest.feature
-Feature: Admin and Guest Actions
+Feature: Tour Booking Management
 
-  Scenario: Book Tour as Guest
-    Given I am on the home page
-    When I select the first tour and book as guest
-    Then a booking confirmation is displayed
+  Background:
+    Given the following tours exist:
+      | name          | price | slots | destination       |
+      | Safari Adventure | 500  | 10    | Maasai Mara       |
+      | Beach Getaway | 300   | 15    | Mombasa Coast     |
 
-  Scenario: Admin Creates a Tour
-    Given I login as admin with username "admin" and password "admin123"
-    When I create a new tour with name "Safari Adventure", slots "10", price "$500", and description "Explore the wild"
-    Then the tour "Safari Adventure" appears in the tours list
+  Scenario: Book tour as guest
+    When I visit the home page
+    And I select the "Safari Adventure" tour
+    And I book as guest with:
+      | name  | email              |
+      | John  | john@example.com   |
+    Then I should see booking confirmation
 
-  Scenario: View All Bookings and Tickets
-    Given I login as admin with username "admin" and password "admin123"
-    When I navigate to the bookings page
-    Then I see a list of all bookings
-    When I navigate to the tickets page
-    Then I see all generated tickets
+  Scenario: Admin creates new tour
+    Given I am logged in as admin
+    When I create a new tour with:
+      | name           |  Coast Vacation |
+      | price          | 600            |
+      | slots          | 15             |
+      | description    | chilling at the beach |
+      | destination    | Kilifi Beach     |
+    Then I should see "coast Vacation" in tours list
+
+  Scenario: View bookings and tickets
+    Given I am logged in as admin
+    When I view all bookings
+    Then I should see at least 1 booking
+    When I view all tickets
+    Then I should see at least 1 ticket

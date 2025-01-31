@@ -5,7 +5,7 @@ describe('Login Test', () => {
       });
       
     it('Shows error on invalid login', () => {
-      cy.visit('/login');
+      cy.visit("http://localhost/login");
       cy.get('#username').type('invalid_user');
       cy.get('#password').type('wrong_password');
       cy.get('button[type="submit"]').click();

@@ -1,4 +1,3 @@
-// e2e/step-definitions/steps.js
 const { Given, When, Then, Before, After } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
 const { chromium } = require('playwright');
@@ -6,26 +5,23 @@ const { chromium } = require('playwright');
 let browser;
 let page;
 
-// Setup browser before scenarios
 Before(async () => {
   browser = await chromium.launch({ headless: false });
   page = await browser.newPage();
 });
 
-// Teardown after scenarios
 After(async () => {
   await browser.close();
 });
 
-// Challenge 1: Invalid Login test case 
+// Shared steps
 Given('I navigate to the login page', async () => {
   await page.goto('/login');
 });
 
-When('I enter {string} as username and {string} as password', 
-  async (username, password) => {
-    await page.fill('#username', username);
-    await page.fill('#password', password);
+When('I enter {string} as email and {string} as password', async (email, password) => {
+  await page.fill('#email', email);
+  await page.fill('#password', password);
 });
 
 When('I click the login button', async () => {
@@ -37,53 +33,68 @@ Then('I should see an error message {string}', async (message) => {
   expect(errorText).toContain(message);
 });
 
-// Challenge 2: Booking test cases
-Given('I am on the homepage', async () => {
+// Booking management steps
+Given('the following tours exist:', async (dataTable) => {
+  // Implementation for test data setup would typically use API calls
+});
+
+When('I visit the home page', async () => {
   await page.goto('/');
 });
 
-When('I select a tour and book it as a guest', async () => {
-  await page.click('.tour-card:first-child');
-  await page.click('#book-as-guest');
+When('I select the {string} tour', async (tourName) => {
+  await page.click(`text=${tourName}`);
 });
 
-Then('a success booking is shown', async () => {
-  await expect(page.locator('.confirmation')).toBeVisible();
+When('I book as guest with:', async (dataTable) => {
+  const { name, email } = dataTable.hashes()[0];
+  await page.fill('#guest-name', name);
+  await page.fill('#guest-email', email);
+  await page.click('#confirm-booking');
 });
 
-Given('I login as admin with correct logins', async () => {
-  await page.goto('/login');
-  await page.fill('#username', 'admin');
-  await page.fill('#password', 'admin123');
+Then('I should see booking confirmation', async () => {
+  await expect(page.locator('.booking-confirmation')).toBeVisible();
+});
+
+Given('I am logged in as admin', async () => {
+  await page.goto('/admin/login');
+  await page.fill('#email', process.env.ADMIN_EMAIL);
+  await page.fill('#password', process.env.ADMIN_PASSWORD);
   await page.click('button[type="submit"]');
 });
 
-When('I add new tour with {string}, {int} slots, {string}, {string}', 
-  async (name, slots, price, description) => {
-    await page.goto('/admin/tours/create');
-    await page.fill('#name', name);
-    await page.fill('#slots', slots.toString());
-    await page.fill('#price', price);
-    await page.fill('#description', description);
-    await page.click('#submit-tour');
+When('I create a new tour with:', async (dataTable) => {
+  const tourData = dataTable.hashes()[0];
+  await page.goto('/admin/tours/create');
+  
+  await page.fill('#name', tourData.name);
+  await page.fill('#price', tourData.price);
+  await page.fill('#slots', tourData.slots);
+  await page.fill('#description', tourData.description);
+  await page.selectOption('#destination', { label: tourData.destination });
+  
+  await page.click('#save-tour');
 });
 
-Then('the tour {string} appears in the tours list', async (tourName) => {
+Then('I should see {string} in tours list', async (tourName) => {
   await expect(page.locator('.tour-list')).toContainText(tourName);
 });
 
-When('I navigate to the bookings page', async () => {
-  await page.click('#nav-bookings');
+When('I view all bookings', async () => {
+  await page.goto('/admin/bookings');
 });
 
-Then('I see a list of all bookings', async () => {
-  await expect(page.locator('.bookings-table')).toBeVisible();
+Then('I should see at least {int} booking', async (count) => {
+  const bookings = await page.locator('.booking-item').count();
+  expect(bookings).toBeGreaterThanOrEqual(count);
 });
 
-When('I navigate to the tickets page', async () => {
-  await page.click('#nav-tickets');
+When('I view all tickets', async () => {
+  await page.goto('/admin/tickets');
 });
 
-Then('I see all generated tickets', async () => {
-  await expect(page.locator('.tickets-list')).toBeVisible();
+Then('I should see at least {int} ticket', async (count) => {
+  const tickets = await page.locator('.ticket-item').count();
+  expect(tickets).toBeGreaterThanOrEqual(count);
 });
